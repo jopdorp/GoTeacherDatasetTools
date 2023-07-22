@@ -56,7 +56,7 @@ def analyze(analyzed_file_name, main_variation):
     score_drops = [clean_drop(drop) for drop in score_drops]
     score_drops = list(enumerate(score_drops))
     score_drops.sort(key=lambda x: abs(x[1]))
-    score_drops = [ (drop[0], ( drop[1] if index > len(score_drops)//2 else 0)) for index, drop in enumerate(score_drops)]
+    score_drops = [ (drop[0], ( drop[1] if index > len(score_drops)//1.8 else 0)) for index, drop in enumerate(score_drops)]
     score_drops.sort(key=lambda x:x[0])
     score_drops = [ str(drop) if abs(drop) > 0 else '' for index, drop in score_drops]
     return score_drops
@@ -64,7 +64,7 @@ def analyze(analyzed_file_name, main_variation):
 def extract_comments(moves_and_comments_main_variation, moves):
     comments_with_node_index = [(index,item) for index, item in enumerate(moves_and_comments_main_variation) if item[0] == '\n']
     comments_with_move_number = [(item[0] - index,item[1]) for index, item in enumerate(comments_with_node_index)]
-    return ''.join([str(move_number) + "|" + comment[1:] if moves[move_number][-1] != ']' else '' for move_number, comment in comments_with_move_number])
+    return ''.join([str(move_number) + "|" + comment[1:] if moves[move_number-1][-1] != ']' else '' for move_number, comment in comments_with_move_number])
 
 def extract_metadata(main_variation):
     return ';'+''.join([item[0] for item in METADATA_REGEX.findall(main_variation)])
@@ -75,6 +75,6 @@ def extract_moves_and_comments(main_variation, score_drops):
 
     moves = [ ''.join(move) for move in zip(moves[0:len(score_drops)], score_drops)]
     comments = extract_comments(moves_and_comments_main_variation, moves)
-    return ';' + ';'.join([str(i) + '#' + move if move[-1] != ']' else move for i, move in enumerate(moves)]), comments
+    return ';' + ';'.join([str(i + 1) + '#' + move if move[-1] != ']' else move for i, move in enumerate(moves)]), comments
 
 make_dataset()

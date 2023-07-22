@@ -75,6 +75,6 @@ def extract_moves_and_comments(main_variation, score_drops):
 
     moves = [ ''.join(move) for move in zip(moves[0:len(score_drops)], score_drops)]
     comments = extract_comments(moves_and_comments_main_variation, moves)
-    return ';' + ';'.join([str(i + 1) + '#' + move if move[-1] != ']' else move for i, move in enumerate(moves)]), comments
+    return ';' + ';'.join([str(i) + '#' + move if move[-1] != ']' else move for i, move in enumerate(moves)]), comments
 
 make_dataset()

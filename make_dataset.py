@@ -10,6 +10,7 @@ METADATA_REGEX = re.compile(r'((BR|WR|KM|RE|SZ)\[.+\])')
 MOVE_AND_COMMENTS_REGEX = re.compile(r'((;(W|B|)\[.*?\])|(\n(M|C)(\[(.|\n)*?\])+))')
 SCORE_DROP_REGEX = re.compile(r'(?<=\* Score drop: ).+')
 DROP_CLEAN_REGEX = re.compile(r'-?[0-9]+\.?[0-9]+')
+KEEP_DIVIDER = 1.8
 
 def make_dataset():
     directory = sys.argv[1]
@@ -40,9 +41,6 @@ def convert(directory, file):
         return "", ""
     else:
         return metadata_main_variation + moves, comments
-
-def clean_drop(drop):
-    return float(DROP_CLEAN_REGEX.findall(drop)[0])
     
 def analyze(analyzed_file_name, main_variation):
     if not os.path.isfile(analyzed_file_name):
@@ -54,12 +52,17 @@ def analyze(analyzed_file_name, main_variation):
         analyzed_game = analyzed.read()
     score_drops = SCORE_DROP_REGEX.findall(analyzed_game)
     score_drops = [clean_drop(drop) for drop in score_drops]
+    return keep_large_drops(score_drops)
+
+def clean_drop(drop):
+    return float(DROP_CLEAN_REGEX.findall(drop)[0])
+    
+def keep_large_drops(score_drops):
     score_drops = list(enumerate(score_drops))
     score_drops.sort(key=lambda x: abs(x[1]))
-    score_drops = [ (drop[0], ( drop[1] if index > len(score_drops)//1.8 else 0)) for index, drop in enumerate(score_drops)]
+    score_drops = [ (drop[0], ( drop[1] if index > len(score_drops)//KEEP_DIVIDER else 0)) for index, drop in enumerate(score_drops)]
     score_drops.sort(key=lambda x:x[0])
-    score_drops = [ str(drop) if abs(drop) > 0 else '' for index, drop in score_drops]
-    return score_drops
+    return [ str(drop) if abs(drop) > 0 else '' for _, drop in score_drops]
 
 def extract_comments(moves_and_comments_main_variation, moves):
     comments_with_node_index = [(index,item) for index, item in enumerate(moves_and_comments_main_variation) if item[0] == '\n']

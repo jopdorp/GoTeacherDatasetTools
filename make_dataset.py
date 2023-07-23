@@ -26,7 +26,6 @@ def make_dataset():
                     dataset.append({"instruction": INSTRUCTION_DROP_ESTIMATOR, "input": moves, "output": moves_with_drops})
                 if len(dataset) % 100 == 0:
                     print("just did file number:" + str(len(dataset)) + ", named: " + file)
-        break
 
     json_array = json.dumps(dataset, indent=2)
     with open("dataset.json", "w") as outfile:

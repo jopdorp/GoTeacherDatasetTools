@@ -45,6 +45,8 @@ def paralel_analyze(directory, number_of_processes=4):
 
     for path in glob.iglob(directory + '**/*.sgf', recursive=True):
         directory, file = os.path.split(path) 
+        if 'analyzed' in directory:
+            continue
         tasks_to_accomplish.put((directory+"/", file, True))
 
     # creating processes

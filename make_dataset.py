@@ -72,6 +72,8 @@ def make_dataset():
         dataset = []
         for path in glob.iglob(directory + '**/*.sgf', recursive=True):
             directory, file = os.path.split(path) 
+            if 'analyzed' in directory:
+                continue
             moves_with_drops, output, moves = convert(directory+"/", file)
 
             if moves_with_drops and output:

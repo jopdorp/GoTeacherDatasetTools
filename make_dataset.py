@@ -67,7 +67,7 @@ def make_dataset():
     analyze_only = sys.argv[2] if len(sys.argv) >= 4 else False
 
     if analyze_only:
-        paralel_analyze(directory = sys.argv[1], directory = sys.argv[3])
+        paralel_analyze(directory = sys.argv[1], number_of_processes = int(sys.argv[3]))
     else:
         dataset = []
         for path in glob.iglob(directory + '**/*.sgf', recursive=True):

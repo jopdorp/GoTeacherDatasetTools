@@ -17,7 +17,9 @@ def make_dataset():
     directory = sys.argv[1]
     dataset = []
     for path in glob.iglob(directory + '**/*.sgf', recursive=True):
-        directory, file = os.path.split(path) 
+        directory, file = os.path.split(path)
+        if 'analyzed' in directory:
+            continue
         moves_with_drops, output, moves = convert(directory+"/", file)
         if moves_with_drops and output:
             dataset.append({"instruction": INSTRUCTION, "input": input, "output": output})

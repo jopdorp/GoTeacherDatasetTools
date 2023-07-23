@@ -3,7 +3,7 @@ import subprocess
 import sys
 import re
 import json
-
+import glob
 
 INSTRUCTION = "Create commentary for the following game of go in SGF format."
 METADATA_REGEX = re.compile(r'((BR|WR|KM|RE|SZ)\[.+\])')
@@ -16,16 +16,15 @@ INSTRUCTION_DROP_ESTIMATOR = "This is a game of go in SGF format, estimate the s
 def make_dataset():
     directory = sys.argv[1]
     dataset = []
-    for _, _, files in os.walk(directory):
-        for file in files:
-            if file.endswith(".sgf"):
-                moves_with_drops, output, moves = convert(directory, file)
-                if moves_with_drops and output:
-                    dataset.append({"instruction": INSTRUCTION, "input": input, "output": output})
-                if moves and not output:
-                    dataset.append({"instruction": INSTRUCTION_DROP_ESTIMATOR, "input": moves, "output": moves_with_drops})
-                if len(dataset) % 100 == 0:
-                    print("just did file number:" + str(len(dataset)) + ", named: " + file)
+    for path in glob.iglob(directory + '**/*.sgf', recursive=True):
+        directory, file = os.path.split(path) 
+        moves_with_drops, output, moves = convert(directory+"/", file)
+        if moves_with_drops and output:
+            dataset.append({"instruction": INSTRUCTION, "input": input, "output": output})
+        if moves and not output:
+            dataset.append({"instruction": INSTRUCTION_DROP_ESTIMATOR, "input": moves, "output": moves_with_drops})
+        if len(dataset) % 100 == 0:
+            print("just did file number:" + str(len(dataset)) + ", named: " + file)
 
     json_array = json.dumps(dataset, indent=2)
     with open("dataset.json", "w") as outfile:
@@ -40,7 +39,7 @@ def convert(directory, file):
     except Exception as error:
         print("failed" + directory+file + ", continuing..")
         print("An error occurred:", error) 
-        return "", ""
+        return "", "", ""
     else:
         return metadata_main_variation + moves_with_drops, comments, metadata_main_variation + moves
     
